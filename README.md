@@ -3,10 +3,7 @@ Axle OS: The AI-powered operating system for intelligent fleet management, lever
 
 **The Central Operating System for Intelligent Fleet Management**
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-repo/axle-os/ci.yml?branch=main)](https://github.com/your-repo/axle-os/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code Coverage](https://img.shields.io/codecov/c/github/your-repo/axle-os)](https://codecov.io/gh/your-repo/axle-os)
-[![Discord](https://img.shields.io/discord/12345?label=Join%20Community&logo=discord)](https://discord.gg/your-invite)
 
 Axle OS is a production-grade, scalable SaaS platform designed to replace uncertainty in fleet management with foresight and insight. It acts as a dedicated team of digital experts assigned to every vehicle, working 24/7 to predict failures, diagnose root causes, and monitor operational safety.
 
