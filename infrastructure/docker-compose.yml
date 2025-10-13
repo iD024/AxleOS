@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Your FastAPI Application
+  app:
+    build: . 
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src # Mount your code for live-reloading
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/fleetdb
+      - S3_ENDPOINT_URL=http://minio:9000
+      - S3_ACCESS_KEY=minioadmin
+      - S3_SECRET_KEY=minioadmin
+      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - db
+      - minio
+      - rabbitmq
+
+  # PostgreSQL Database
+  db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=fleetdb
+    ports:
+      - "5432:5432" # Expose port to connect with a DB tool if needed
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # MinIO - Local S3/GCS
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    ports:
+      - "9000:9000" # API Port
+      - "9001:9001" # Web UI Port
+    volumes:
+      - minio_data:/data
+
+  # RabbitMQ - Local Pub/Sub
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management UI
+
+volumes:
+  postgres_data:
+  minio_data:
