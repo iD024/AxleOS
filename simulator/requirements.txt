@@ -1,0 +1,14 @@
+# For controlling the BeamNG.tech simulator
+beamngpy==1.27
+
+# For data manipulation and creating DataFrames
+pandas==2.1.1
+
+# Required by Pandas to write in the efficient Parquet file format
+pyarrow==14.0.1
+
+# The standard Python SDK for S3-compatible storage (used for MinIO)
+boto3==1.28.62
+
+# A popular Python client for RabbitMQ to send messages
+pika==1.3.2
