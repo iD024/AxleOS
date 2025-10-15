@@ -9,11 +9,11 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=db
     ports:
-      - "5432:5432"
+      - "3001:3001"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U guardian_user -d fleet_guardian_db"]
+      test: ["CMD-SHELL", "pg_isready -U user -d db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -51,7 +51,7 @@ services:
       # Mount the code for live-reloading during development
       - ../backend/services/simulation_orchestrator/app:/app/app
     environment:
-      - DATABASE_URL=postgresql://guardian_user:guardian_secret_password@db:5432/fleet_guardian_db
+      - DATABASE_URL=postgresql://user:password@db:3001/db
     depends_on:
       db:
         condition: service_healthy
