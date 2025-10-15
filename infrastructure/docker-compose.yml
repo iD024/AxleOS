@@ -1,55 +1,62 @@
 version: '3.8'
 
 services:
-  # Your FastAPI Application
-  app:
-    build: . 
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./src:/app/src # Mount your code for live-reloading
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/fleetdb
-      - S3_ENDPOINT_URL=http://minio:9000
-      - S3_ACCESS_KEY=minioadmin
-      - S3_SECRET_KEY=minioadmin
-      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
-    depends_on:
-      - db
-      - minio
-      - rabbitmq
-
-  # PostgreSQL Database
+  # --- INFRASTRUCTURE SERVICES ---
   db:
     image: postgres:14-alpine
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=fleetdb
+      - POSTGRES_DB=db
     ports:
-      - "5432:5432" # Expose port to connect with a DB tool if needed
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guardian_user -d fleet_guardian_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # MinIO - Local S3/GCS
   minio:
     image: minio/minio
     command: server /data --console-address ":9001"
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=admin
     ports:
-      - "9000:9000" # API Port
-      - "9001:9001" # Web UI Port
+      - "9000:9000"  # API port
+      - "9001:9001"  # Console UI port
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
 
-  # RabbitMQ - Local Pub/Sub
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:
-      - "5672:5672"   # AMQP protocol port
-      - "15672:15672" # Management UI
+      - "5672:5672"    # AMQP protocol port
+      - "15672:15672"  # Management UI port
+
+  # --- APPLICATION SERVICES ---
+  simulation_orchestrator:
+    build:
+      context: ../backend/services/simulation_orchestrator
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the code for live-reloading during development
+      - ../backend/services/simulation_orchestrator/app:/app/app
+    environment:
+      - DATABASE_URL=postgresql://guardian_user:guardian_secret_password@db:5432/fleet_guardian_db
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
 
 volumes:
   postgres_data:
