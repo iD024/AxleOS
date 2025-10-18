@@ -22,8 +22,8 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     environment:
-      - MINIO_ROOT_USER=admin
-      - MINIO_ROOT_PASSWORD=admin
+      - MINIO_ROOT_USER=mrid_admin
+      - MINIO_ROOT_PASSWORD=mrid_admin12345
     ports:
       - "9000:9000"  # API port
       - "9001:9001"  # Console UI port
@@ -48,6 +48,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      # Mount the Docker socket to allow this container to control Docker
+      - /var/run/docker.sock:/var/run/docker.sock
       # Mount the code for live-reloading during development
       - ../backend/services/simulation_orchestrator/app:/app/app
     environment:
