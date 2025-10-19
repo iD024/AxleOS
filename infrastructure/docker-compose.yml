@@ -9,7 +9,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=db
     ports:
-      - "3001:3001"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -42,18 +42,22 @@ services:
       - "15672:15672"  # Management UI port
 
   # --- APPLICATION SERVICES ---
-  simulation_orchestrator:
+  simulator:
     build:
       context: ../backend/services/simulation_orchestrator
+    image: simulator:latest
     ports:
       - "8000:8000"
+
     volumes:
       # Mount the Docker socket to allow this container to control Docker
       - /var/run/docker.sock:/var/run/docker.sock
       # Mount the code for live-reloading during development
       - ../backend/services/simulation_orchestrator/app:/app/app
     environment:
-      - DATABASE_URL=postgresql://user:password@db:3001/db
+      - DATABASE_URL=postgresql://user:password@db:5432/db
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - BEAMNG_HOST_PATH=/home/laksh/Documents/projects/Automotive-Hackathon/AxleOS/simulator/BeamNG.tech.v0.37.6.0
     depends_on:
       db:
         condition: service_healthy
