@@ -1,11 +1,14 @@
+#added numpy for some simulation scripts
+numpy==1.26.4
+
 # For controlling the BeamNG.tech simulator
 beamngpy==1.27
 
 # For data manipulation and creating DataFrames
-pandas==2.1.1
+pandas==1.6.2
 
 # Required by Pandas to write in the efficient Parquet file format
-pyarrow==14.0.1
+pyarrow==12.0.1
 
 # The standard Python SDK for S3-compatible storage (used for MinIO)
 boto3==1.28.62

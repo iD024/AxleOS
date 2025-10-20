@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ../database/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d db"]
       interval: 5s
@@ -41,6 +42,19 @@ services:
       - "5672:5672"    # AMQP protocol port
       - "15672:15672"  # Management UI port
 
+  seeder:
+    # This service runs once to populate the DB, then exits.
+    build:
+      context: ../
+      dockerfile: ./scripts/Dockerfile.seeder
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=db
+    depends_on:
+      db:
+        condition: service_healthy
+
   # --- APPLICATION SERVICES ---
   simulator:
     build:
@@ -63,6 +77,18 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_started
+  mock_telematics_api:
+    build:
+      context: ../backend/services/mock_telematics_api
+    ports:
+      - "8001:8001"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=db
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

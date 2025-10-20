@@ -1,6 +1,8 @@
 # this is python base image slim is for quicker builds
 FROM python:3.10-slim
 
+
+
 WORKDIR /app
 
 COPY ./requirements.txt .
